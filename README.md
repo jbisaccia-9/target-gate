@@ -19,6 +19,10 @@ NPPES registry (public)          markets.json (strategic markets)
             (Blob or     (rank by    │ pass        (Graph sendMail
              ./container) coverage)  │              or ./outbox)
                                      └ fail ──► report + exit 1, nothing sent
+
+                 analysis agent ──► BRIEF GATE ──► network-change brief
+                 (tool-calling loop │ pass         attached to marketing email
+                  over snapshots)   └ fail ──► brief withheld, lists still ship
 ```
 
 ## The list gate
@@ -30,10 +34,29 @@ NPPES registry (public)          markets.json (strategic markets)
 | freshness | the snapshot is older than the twice-monthly cadence allows (16 days) |
 | field coverage | contact completeness falls below 80% |
 | market coverage | any strategic market produced zero targets |
+| **brief grounding** | the agent's brief cites any identifier not present in the snapshots |
 
 CI runs both paths: the clean fixture must clear and deliver, and the
 corrupted fixture must be refused with zero outbound files
 (`! python -m targetgate run corrupted`).
+
+## The analysis agent
+
+The network-change brief is written by a real tool-calling agent loop
+(`src/targetgate/agent.py`): the model is handed tools — `list_markets`,
+`diff_market` — and the harness executes its calls and feeds results back
+until it emits the brief. Two backends share the loop: an **Azure AI Foundry /
+Azure OpenAI deployment** in production (`FOUNDRY_ENDPOINT` /
+`FOUNDRY_API_KEY` / `FOUNDRY_DEPLOYMENT`), and a **scripted policy** for CI —
+canned decisions, but the brief is composed from the *real* tool results the
+loop returns, so the loop, tools, and data flow are fully exercised keyless.
+
+The agent's output faces its own gate: **grounding** — every 10-digit
+identifier cited in the brief must exist in the snapshots it describes. CI
+runs a deliberately hallucinating backend that invents a provider, and asserts
+the gate refuses it (`! python -m targetgate brief hallucinating`). An agent
+that invents providers does not get published to marketing; the lists still
+ship, the brief is withheld.
 
 ## Azure shape
 

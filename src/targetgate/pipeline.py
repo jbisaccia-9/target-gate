@@ -39,8 +39,15 @@ def run(source="fixture", today=None, deliver=True):
         print("DELIVERY: BLOCKED - nothing was sent.")
         return code
     if deliver:
+        from .agent import run_agent, grounding_gate, get_model, previous_rows
+        brief, _ = run_agent(get_model(), rows, previous_rows())
+        summary = analyze.summarize(lists)
+        if grounding_gate(brief, rows, previous_rows()) == 0:
+            summary = summary + "\n\n" + brief
+        else:
+            summary = summary + "\n\n(Analyst brief withheld: failed grounding.)"
         from .emailer import deliver as send
-        channel = send(lists, analyze.summarize(lists), snapshot_date)
+        channel = send(lists, summary, snapshot_date)
         print(f"DELIVERY: sent via {channel} - "
               f"{sum(len(m['targets']) for m in lists)} targets across {len(lists)} markets.")
     return 0

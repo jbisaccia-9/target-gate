@@ -12,3 +12,6 @@ jobs:
       - run: python -m targetgate run fixture
       # The corrupted snapshot must be refused AND deliver nothing.
       - run: "! python -m targetgate run corrupted"
+      - run: python -m targetgate brief
+      # A hallucinating analyst must be refused by the grounding gate.
+      - run: "! python -m targetgate brief hallucinating"

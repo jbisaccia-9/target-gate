@@ -12,7 +12,7 @@ import subprocess
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PY = str(ROOT / ".venv" / "bin" / "python")
 
-COMMANDS = [("Unit tests", ["-m", "pytest", "-q"], False), ("Clean fixture: gate + delivery", ["-m", "targetgate", "run", "fixture"], False), ("Corrupted fixture: refused, nothing sent", ["-m", "targetgate", "run", "corrupted"], True)]
+COMMANDS = [("Unit tests", ["-m", "pytest", "-q"], False), ("Clean fixture: gate + delivery", ["-m", "targetgate", "run", "fixture"], False), ("Corrupted fixture: refused, nothing sent", ["-m", "targetgate", "run", "corrupted"], True), ("Agent brief: tool loop + grounding gate", ["-m", "targetgate", "brief"], False), ("Hallucinating analyst: refused", ["-m", "targetgate", "brief", "hallucinating"], True)]
 
 out = [f"# Results\n",
        f"Generated {datetime.date.today()} by `scripts/make_results.py` — "

@@ -67,3 +67,28 @@ def test_clean_run_delivers_to_outbox():
     assert run(source="fixture", today=TODAY) == 0
     sales = pathlib.Path(pl.ROOT / "outbox" / f"{TODAY}-sales.md")
     assert sales.exists() and "| provider |" in sales.read_text()
+
+
+def test_agent_loop_executes_real_tools():
+    from targetgate.agent import run_agent, ScriptedModel, previous_rows
+    rows = pull_fixture()
+    brief, transcript = run_agent(ScriptedModel(), rows, previous_rows())
+    tool_msgs = [t for t in transcript if t.get("role") == "tool"]
+    assert len(tool_msgs) == 4                      # list_markets + 3 diffs
+    assert "Network-change brief" in brief
+    assert "Gus Formerly" in brief                  # dropped provider surfaced
+    assert "new:" in brief                          # additions surfaced
+
+
+def test_grounded_brief_passes_gate():
+    from targetgate.agent import run_agent, grounding_gate, ScriptedModel, previous_rows
+    rows = pull_fixture()
+    brief, _ = run_agent(ScriptedModel(), rows, previous_rows())
+    assert grounding_gate(brief, rows, previous_rows()) == 0
+
+
+def test_hallucinated_npi_refused():
+    from targetgate.agent import run_agent, grounding_gate, HallucinatingModel, previous_rows
+    rows = pull_fixture()
+    brief, _ = run_agent(HallucinatingModel(), rows, previous_rows())
+    assert grounding_gate(brief, rows, previous_rows()) == 1
