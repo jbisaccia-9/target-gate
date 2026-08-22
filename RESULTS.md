@@ -8,7 +8,7 @@ Generated 2026-08-21 by `scripts/make_results.py` — every block below is captu
 
 ```
 ...........                                                              [100%]
-11 passed in 0.04s
+11 passed in 0.03s
 ```
 
 ## Clean fixture: gate + delivery
@@ -50,8 +50,8 @@ Network-change brief (scripted analyst; data from live tool calls):
 - AZ: 12 -> 11 providers.
     gone: Gus Formerly (NPI 9000070018)
 - CO: 9 -> 11 providers.
-    new: Zoe Fauxman (Pediatrics, NPI 9000010329)
     new: Eli Stubbs (Family Medicine, NPI 9000010337)
+    new: Zoe Fauxman (Pediatrics, NPI 9000010329)
 - TX: 12 -> 11 providers.
     gone: Ida Departed (NPI 9000070026)
 [agent loop: 4 tool calls]
@@ -77,4 +77,30 @@ Network-change brief (scripted analyst; data from live tool calls):
   FAIL  brief grounding: 5 NPIs cited, 1 not present in any snapshot
     HALLUCINATED: 9123456780
 BRIEF GATE: FAILED - the agent invented providers; brief not published.
+```
+
+## Braintrust-shaped eval suite
+
+`python -m targetgate suite` — exit 0, OK
+
+```
+PASS  every NPI passes its checksum (0 bad)
+  PASS  no duplicate NPIs (0 dupes)
+  PASS  snapshot fresh: 0d old (max 16)
+  PASS  field coverage 98% (min 80%)
+  PASS  every market has targets (0 empty)
+GATE: PASSED - list is cleared for sales and marketing.
+  FAIL  every NPI passes its checksum (1 bad)
+  FAIL  no duplicate NPIs (1 dupes)
+  PASS  snapshot fresh: 0d old (max 16)
+  PASS  field coverage 87% (min 80%)
+  FAIL  every market has targets (1 empty)
+GATE: FAILED - this list must not be sent.
+DELIVERY: BLOCKED - nothing was sent.
+  PASS  brief grounding: 4 NPIs cited, 0 not present in any snapshot
+BRIEF GATE: PASSED - every cited identifier exists in the data.
+  clean-fixture: 1.0
+  corrupted-fixture: 1.0
+  agent_grounding: 1.0
+SUITE: PASS - no regressions.
 ```

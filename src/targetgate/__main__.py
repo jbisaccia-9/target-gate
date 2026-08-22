@@ -5,6 +5,9 @@ from .pipeline import run
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if args and args[0] == "suite":
+        from .btsuite import run_local
+        sys.exit(run_local())
     if args and args[0] == "brief":
         from .agent import run_agent, grounding_gate, get_model, previous_rows
         from .pull import pull_fixture

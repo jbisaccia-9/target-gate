@@ -11,18 +11,33 @@ duplicate that gets two reps calling the same office. This repo wires the
 outbound email step strictly **behind** a list gate; a failing list produces a
 report and a nonzero exit, and there is no code path that sends it.
 
-```
-NPPES registry (public)          markets.json (strategic markets)
-        │                                │
-        ▼                                ▼
-   pull ──► snapshot ──► analyze ──► GATE ──► sales.md / marketing.md
-            (Blob or     (rank by    │ pass        (Graph sendMail
-             ./container) coverage)  │              or ./outbox)
-                                     └ fail ──► report + exit 1, nothing sent
+```mermaid
+flowchart TB
+    NPPES["NPPES registry (public, keyless)"] --> PULL["pull"]
+    FIX["synthetic fixture (non-issuable NPIs)"] --> PULL
+    MK["markets.json: strategic markets"] --> AN
+    PULL --> SNAP["snapshot to container (Blob live, ./container local)"]
+    SNAP --> AN["analyze: rank by coverage per market"]
+    AN --> LG{"list gate: checksum, dedupe, freshness, coverage, market coverage"}
+    LG -- "pass" --> MAIL["deliver: Graph sendMail live, ./outbox local"]
+    LG -- "fail" --> STOP["refused: report + exit 1, nothing sent"]
 
-                 analysis agent ──► BRIEF GATE ──► network-change brief
-                 (tool-calling loop │ pass         attached to marketing email
-                  over snapshots)   └ fail ──► brief withheld, lists still ship
+    subgraph AGENT["analysis agent (recommend-only loop)"]
+        MDL["model: scripted for CI, Azure AI Foundry live"]
+        MDL -- "tool_use: list_markets, diff_market" --> TL["snapshot tools"]
+        TL -- "tool_result" --> MDL
+        MDL -- "final text" --> BR["network-change brief (cites NPIs)"]
+    end
+    SNAP --> TL
+    BR --> BG{"brief grounding gate: every cited NPI exists in a snapshot?"}
+    BG -- "pass" --> ATT["brief attached to marketing email"]
+    BG -- "fail" --> WH["brief withheld, lists still ship"]
+
+    subgraph EVAL["Braintrust-shaped eval: data, task, scorers"]
+        D["data: clean + corrupted snapshots"] --> T["task: run the pipeline gate / agent"] --> SC["scorers: gate_expected, agent_grounding"]
+    end
+    SC -- "regression" --> CIF["CI fails"]
+    SC -.-> BT["Braintrust hosted tracking (obs extra)"]
 ```
 
 ## The list gate
@@ -80,6 +95,13 @@ provider. Live mode queries the public NPPES registry; those results are real
 public registry entries, so they land only in the gitignored container and are
 never committed. No employer data, market strategy, or payer logic appears
 anywhere in this repo.
+
+## Eval structure (Braintrust-shaped)
+
+`python -m targetgate suite` runs the `Eval(data, task, scores)` contract
+keyless: the clean fixture must clear, the corrupted fixture must be refused,
+and the agent's brief must stay grounded — any drift fails CI. The obs extra
+pushes the identical suite to hosted Braintrust.
 
 ## Quickstart
 

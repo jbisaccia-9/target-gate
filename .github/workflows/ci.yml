@@ -9,6 +9,7 @@ jobs:
         with: {python-version: "3.12"}
       - run: pip install -e ".[dev]"
       - run: pytest -q
+      - run: python -m targetgate suite
       - run: python -m targetgate run fixture
       # The corrupted snapshot must be refused AND deliver nothing.
       - run: "! python -m targetgate run corrupted"
