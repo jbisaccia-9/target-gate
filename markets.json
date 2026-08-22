@@ -1,0 +1,11 @@
+{
+  "_comment": "Synthetic strategic-market definitions - fictional program, example taxonomies.",
+  "top_n_per_market": 5,
+  "max_snapshot_age_days": 16,
+  "min_field_coverage": 0.80,
+  "markets": [
+    {"market": "Metro Alpha", "state": "AZ", "taxonomies": ["Family Medicine", "Pediatrics"]},
+    {"market": "Metro Bravo", "state": "TX", "taxonomies": ["Family Medicine", "Physical Therapist"]},
+    {"market": "Metro Charlie", "state": "CO", "taxonomies": ["Pediatrics", "Physical Therapist"]}
+  ]
+}

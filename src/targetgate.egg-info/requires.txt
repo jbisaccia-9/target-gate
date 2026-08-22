@@ -1,0 +1,7 @@
+
+[azure]
+azure-functions
+azure-storage-blob
+
+[dev]
+pytest

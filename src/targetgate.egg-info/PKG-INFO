@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: targetgate
+Version: 0.1.0
+Summary: Twice-monthly provider-targeting pipeline; no list reaches sales until it passes the gate
+Requires-Python: >=3.9
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Provides-Extra: azure
+Requires-Dist: azure-functions; extra == "azure"
+Requires-Dist: azure-storage-blob; extra == "azure"

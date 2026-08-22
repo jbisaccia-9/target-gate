@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+src/targetgate/__init__.py
+src/targetgate/__main__.py
+src/targetgate/analyze.py
+src/targetgate/emailer.py
+src/targetgate/gate.py
+src/targetgate/npi.py
+src/targetgate/pipeline.py
+src/targetgate/pull.py
+src/targetgate/storage.py
+src/targetgate.egg-info/PKG-INFO
+src/targetgate.egg-info/SOURCES.txt
+src/targetgate.egg-info/dependency_links.txt
+src/targetgate.egg-info/requires.txt
+src/targetgate.egg-info/top_level.txt
+tests/test_targetgate.py
